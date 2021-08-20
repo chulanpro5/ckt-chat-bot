@@ -12,7 +12,6 @@ waiting_room = {
     "id": ""
 }
 
-
 def send_message(recipient_id, text):
     """Send a response to Facebook"""
     payload = {
@@ -36,6 +35,29 @@ def send_message(recipient_id, text):
     )
 
     return response.json()
+
+def send_action(recipient_id, action):
+    payload = {
+        'recipient': {
+            'id': recipient_id
+        },
+        "sender_action" : action
+    }
+
+    auth = {
+        'access_token': PAGE_ACCESS_TOKEN
+    }
+
+    response = requests.post(
+        FB_API_URL,
+        params=auth,
+        json=payload
+    )
+
+    return response.json()
+
+def is_seen(event):
+    return (event.get('read'))
 
 
 def verify_webhook(req):
@@ -94,8 +116,8 @@ def disconnect(id):
     user_data[partner_id]["state"] = "empty"
     user_data[partner_id]["partner"] = "empty"
 
-    send_message(id, "Cuộc trò chuyện đã kêt thúc")
-    send_message(partner_id, "Cuộc trò chuyện đã kêt thúc")
+    send_message(id, "Cuộc trò chuyện đã kết thúc")
+    send_message(partner_id, "Cuộc trò chuyện đã kết thúc")
 
 
 def send_message_to_partner(id, message):
@@ -142,12 +164,18 @@ def listen():
         payload = request.json
         event = payload['entry'][0]['messaging']
         for x in event:
-            # print(x)
+            print(x)
             if is_user_message(x):
                 text = x['message']['text']
                 sender_id = x['sender']['id']
+                send_action(sender_id, "typing_on")
                 respond(sender_id, text)
 
+            if is_seen(x):
+                sender_id = x['sender']['id']
+                if sender_id in user_data and user_data[sender_id]["state"] == "connected":
+                    send_action(user_data[sender_id]["partner"], "mark_seen")
+                
         return "ok"
 
 
