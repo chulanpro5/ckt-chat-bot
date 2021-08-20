@@ -4,15 +4,13 @@ app = Flask(__name__)
 
 FB_API_URL = 'https://graph.facebook.com/v2.6/me/messages'
 VERIFY_TOKEN = '123456'  # <paste your verify token here>
-PAGE_ACCESS_TOKEN = 'EABAMQ9TnhaEBAKnZAaWvE3ZCI8iM4u11ZCuufRZCabUwxZCI029gujczZC5OoWKkDZA5r0NnnZCGR90IVafaTRYNgEiYLz66v7Pab2ht4JDlvvpBWl2zwPyCn8CeAZBxvNefjciCY80nwJV73we4apucbKYsVWOBu2JUVerguZCfX9IatJgIziPSU0'  # paste your page access token here>"
+PAGE_ACCESS_TOKEN = 'EABAMQ9TnhaEBAIz3JZCT6rEV1RxszZCm5fuegVDNOEcqmcbBgPQYitWOxaf0JTXSj82A3Np5on4A6EZBpG6S9Ad4XCJmaZB7xuPb0lwGoNQiOVoB7cx6MHYCI5ZCTN2NEUhjwFXMUM4jdUnX8LdmL64ZCsSSvRFXAIZCnsWTdeKqW5tFk4NxfZCM'  # paste your page access token here>"
 
-waiting = 0
-matched = 1
-state = matched
-data_user = {
-    "0": "1"
+user_data = {}
+waiting_room = {
+    "state": "empty",
+    "id": ""
 }
-user_wait = ""
 
 
 def send_message(recipient_id, text):
@@ -47,54 +45,83 @@ def verify_webhook(req):
         return "incorrect"
 
 
-def state_user(sender):
-    if sender in data_user:
-        return 1
-    return 0
+def timban(id):
+    if user_data[id]["state"] == "connected":
+        send_message(id, "Bạn đang ở trong cuộc trò chuyện")
+    elif user_data[id]["state"] == "waiting" :
+        send_message(id, "Đợi chút")
+    elif user_data[id]["state"] == "empty":
+        find_partner(id)
 
 
-def respond(sender, message):
-    global state
-    global user_wait
+def find_partner(id):
+    if waiting_room["state"] == "empty":
+        send_message(id, "Đợi chút")
+        waiting_room["id"] = id
+        waiting_room["state"] = "waiting"
+        user_data[id]["state"] = "waiting"
+    elif waiting_room["state"] == "waiting":
+        connect(id, waiting_room["id"])
 
-    """Formulate a response to the user and
-    pass it on to a function that sends it."""
 
+def connect(id1, id2):
+    user_data[id1]["state"] = "connected"
+    user_data[id1]["partner"] = id2
+    user_data[id2]["state"] = "connected"
+    user_data[id2]["partner"] = id1
+
+    waiting_room["state"] = "empty"
+    waiting_room["id"] = ""
+
+    send_message(id1, "Cuộc trò chuyện bắt đầu")
+    send_message(id2, "Cuộc trò chuyện bắt đầu")
+
+
+def ketthuc(id):
+    if user_data[id]["state"] == "connected":
+        disconnect(id)
+    elif user_data[id]["state"] == "waiting":
+        send_message(id, "Bạn đang tìm kiếm cuộc trò chuyện")
+    elif user_data[id]["state"] == "empty":
+        send_message(id, "Bạn chưa bắt đầu cuộc trò chuyện")
+
+
+def disconnect(id):
+    partner_id = user_data[id]["partner"]
+
+    user_data[id]["state"] = "empty"
+    user_data[id]["partner"] = "empty"
+    user_data[partner_id]["state"] = "empty"
+    user_data[partner_id]["partner"] = "empty"
+
+    send_message(id, "Cuộc trò chuyện đã kêt thúc")
+    send_message(partner_id, "Cuộc trò chuyện đã kêt thúc")
+
+
+def send_message_to_partner(id, message):
+    if user_data[id]["state"] == "connected":
+        send_message(user_data[id]["partner"], message)
+    else:
+        send_message(id, "Bạn không ở trong cuộc trò chuyện")
+
+
+def create_user_data(id):
+    user_data[id] = {}
+    user_data[id]["state"] = "empty"
+    user_data[id]["partner"] = "empty"
+
+
+def respond(id, message):
     formated_message = message.lower()
+    if id not in user_data:
+        create_user_data(id)
 
-    if formated_message == "batdau":
-        if state_user(sender) == matched:
-            send_message(sender, "Bạn đang ở trong cuộc trò chuyện")
-            return
-
-        if sender == user_wait:
-            send_message(sender, "Hãy đợi 1 xíu")
-            return
-
-        if state == matched:
-            send_message(sender, "Hãy đợi 1 xíu")
-            state = waiting
-            user_wait = sender
-            return
-
-        if state == waiting:
-            data_user[sender] = user_wait
-            data_user[user_wait] = sender
-            send_message(sender, "Hãy bắt đầu cuộc trò chuyện")
-            send_message(user_wait, "Hãy bắt đầu cuộc trò chuyện")
-            state = matched
-            return
-
-    if formated_message == "ketthuc":
-        if state_user(sender) == matched:
-            send_message(sender, "Bạn đã kết thúc cuộc trò chuyện")
-            send_message(data_user[sender], "Bạn đã kết thúc cuộc trò chuyện")
-            data_user.pop(data_user[sender])
-            data_user.pop(sender)
-        return
-
-    if state_user(sender) == matched:
-        send_message(data_user[sender], message)
+    if formated_message == "timban":
+        timban(id)
+    elif formated_message == "ketthuc":
+        ketthuc(id)
+    else:
+        send_message_to_partner(id, message)
 
 
 def is_user_message(message):
@@ -114,7 +141,6 @@ def listen():
     if request.method == 'POST':
         payload = request.json
         event = payload['entry'][0]['messaging']
-        print(event)
         for x in event:
             # print(x)
             if is_user_message(x):
