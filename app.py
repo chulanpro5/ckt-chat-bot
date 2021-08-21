@@ -1,16 +1,19 @@
 import requests
 from flask import Flask, request
+import json
+
 app = Flask(__name__)
 
 FB_API_URL = 'https://graph.facebook.com/v2.6/me/messages'
 VERIFY_TOKEN = '123456'  # <paste your verify token here>
-PAGE_ACCESS_TOKEN = 'EABAMQ9TnhaEBAIz3JZCT6rEV1RxszZCm5fuegVDNOEcqmcbBgPQYitWOxaf0JTXSj82A3Np5on4A6EZBpG6S9Ad4XCJmaZB7xuPb0lwGoNQiOVoB7cx6MHYCI5ZCTN2NEUhjwFXMUM4jdUnX8LdmL64ZCsSSvRFXAIZCnsWTdeKqW5tFk4NxfZCM'  # paste your page access token here>"
+PAGE_ACCESS_TOKEN = 'EABAMQ9TnhaEBAHfc8nCMcUlz2UhnmHdHq2x2p9NwmKmRjTou7Gps96vNBxojILTJ5ZAaBFQmIRUDCXljeqzOwMhhoWn7MHj14sUft1h6qYBZAUfWvhWYgwimVlIkWZCWV0BtXidY2SHcaZB6rHgvDgYLQAffrhymsiXCPN5AgZCCQYwtcUr5Y'  # paste your page access token here>"
 
-user_data = {}
-waiting_room = {
-    "state": "empty",
-    "id": ""
-}
+data = open('data_user.json',)
+
+data = json.load(data)
+
+user_data = data["user_data"]
+waiting_room = data["waiting_room"]
 
 def send_message(recipient_id, text):
     """Send a response to Facebook"""
@@ -134,6 +137,16 @@ def create_user_data(id):
 
 
 def respond(id, message):
+    global user_data
+    global waiting_room
+
+    data = open('data_user.json',)
+
+    data = json.load(data)
+
+    user_data = data["user_data"]
+    waiting_room = data["waiting_room"]
+
     formated_message = message.lower()
     if id not in user_data:
         create_user_data(id)
@@ -144,6 +157,12 @@ def respond(id, message):
         ketthuc(id)
     else:
         send_message_to_partner(id, message)
+
+    data["waiting_room"] = waiting_room
+    data["user_data"] = user_data
+
+    with open('data_user.json' , 'w') as fp:
+        json.dump(data, fp, indent=4)
 
 
 def is_user_message(message):
