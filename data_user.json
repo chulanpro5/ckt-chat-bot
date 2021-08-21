@@ -1,0 +1,12 @@
+{
+    "waiting_room": {
+        "state": "empty",
+        "id": ""
+    },
+    "user_data": {
+        "123": {
+            "state": "empty",
+            "partner": "empty"
+        }
+    }
+}
