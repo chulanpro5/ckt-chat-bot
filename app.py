@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 FB_API_URL = 'https://graph.facebook.com/v2.6/me/messages'
 VERIFY_TOKEN = '123456'  # <paste your verify token here>
-PAGE_ACCESS_TOKEN = 'EABAMQ9TnhaEBAHfc8nCMcUlz2UhnmHdHq2x2p9NwmKmRjTou7Gps96vNBxojILTJ5ZAaBFQmIRUDCXljeqzOwMhhoWn7MHj14sUft1h6qYBZAUfWvhWYgwimVlIkWZCWV0BtXidY2SHcaZB6rHgvDgYLQAffrhymsiXCPN5AgZCCQYwtcUr5Y'  # paste your page access token here>"
+PAGE_ACCESS_TOKEN = 'EABAMQ9TnhaEBAEuiotgOmiopAZAeywIb8yL4vdgF2PE0Duhf9OM1tA6ZAsaJ3NfVS4pmGZCwPBQYJsJEVP3htqSkCZBalTDc1jy2IDZCZAXAZCyfMHHccSE6bAZAvzUZBpISGTEtWPbEbZBUYFCRgVpEXw3h86zxt2nBu81T0YGv0V8iVqRZAJ8wizb'  # paste your page access token here>"
 
 data = open('data_user.json',)
 
@@ -15,8 +15,22 @@ data = json.load(data)
 user_data = data["user_data"]
 waiting_room = data["waiting_room"]
 
-def send_message(recipient_id, text):
-    """Send a response to Facebook"""
+
+def send_message(payload):
+    auth = {
+        'access_token': PAGE_ACCESS_TOKEN
+    }
+
+    response = requests.post(
+        FB_API_URL,
+        params=auth,
+        json=payload
+    )
+
+    return response.json()
+
+
+def send_text(recipient_id, text):
     payload = {
         'message': {
             'text': text
@@ -27,40 +41,49 @@ def send_message(recipient_id, text):
         'notification_type': 'regular'
     }
 
-    auth = {
-        'access_token': PAGE_ACCESS_TOKEN
-    }
+    send_message(payload)
 
-    response = requests.post(
-        FB_API_URL,
-        params=auth,
-        json=payload
-    )
-
-    return response.json()
 
 def send_action(recipient_id, action):
     payload = {
         'recipient': {
             'id': recipient_id
         },
-        "sender_action" : action
+        "sender_action": action
     }
 
-    auth = {
-        'access_token': PAGE_ACCESS_TOKEN
+    send_message(payload)
+
+
+def send_attachment(recipient_id, attachment_url, type):
+    payload = {
+        "message": {
+            "attachment": {
+                "type": type,
+                "payload": {
+                    "url": attachment_url
+                }
+            }
+        },
+        'recipient': {
+            'id': recipient_id
+        },
+        'notification_type': 'regular'
     }
 
-    response = requests.post(
-        FB_API_URL,
-        params=auth,
-        json=payload
-    )
+    send_message(payload)
 
-    return response.json()
 
 def is_seen(event):
     return (event.get('read'))
+
+
+def is_command(event):
+    if "postback" in event:
+        if "payload" in event["postback"]:
+            return event["postback"]["payload"]
+    else:
+        return 0
 
 
 def verify_webhook(req):
@@ -72,16 +95,32 @@ def verify_webhook(req):
 
 def timban(id):
     if user_data[id]["state"] == "connected":
-        send_message(id, "Bạn đang ở trong cuộc trò chuyện")
-    elif user_data[id]["state"] == "waiting" :
-        send_message(id, "Đợi chút")
+        send_text(id, "[BOT] Bạn đang ở trong cuộc trò chuyện")
+    elif user_data[id]["state"] == "waiting":
+        send_text(id, "[BOT] Đợi chút")
     elif user_data[id]["state"] == "empty":
         find_partner(id)
 
+def ketthuc(id):
+    if user_data[id]["state"] == "connected":
+        disconnect(id)
+    elif user_data[id]["state"] == "waiting":
+        send_text(id, "[BOT] Bạn đang tìm kiếm cuộc trò chuyện")
+    elif user_data[id]["state"] == "empty":
+        send_text(id, "[BOT] Bạn chưa bắt đầu cuộc trò chuyện")
+
+def report(id):
+    if user_data[id]["state"] == "connected":
+        partner_id = user_data[id]["partner_id"]
+        send_text(id, "[BOT] Cảm ơn bạn đã báo cáo")
+        send_text(partner_id, "[BOT] Bạn đã bị đối phương báo cáo, hãy cẩn trọng với ngôn từ của bạn")
+        #send_text(ADMIND_ID,)
+    else:
+        send_text(id, "[BOT] Bạn chưa bắt đầu cuộc trò chuyện")
 
 def find_partner(id):
     if waiting_room["state"] == "empty":
-        send_message(id, "Đợi chút")
+        send_text(id, "Đợi chút")
         waiting_room["id"] = id
         waiting_room["state"] = "waiting"
         user_data[id]["state"] = "waiting"
@@ -98,17 +137,8 @@ def connect(id1, id2):
     waiting_room["state"] = "empty"
     waiting_room["id"] = ""
 
-    send_message(id1, "Cuộc trò chuyện bắt đầu")
-    send_message(id2, "Cuộc trò chuyện bắt đầu")
-
-
-def ketthuc(id):
-    if user_data[id]["state"] == "connected":
-        disconnect(id)
-    elif user_data[id]["state"] == "waiting":
-        send_message(id, "Bạn đang tìm kiếm cuộc trò chuyện")
-    elif user_data[id]["state"] == "empty":
-        send_message(id, "Bạn chưa bắt đầu cuộc trò chuyện")
+    send_text(id1, "[BOT] Cuộc trò chuyện bắt đầu")
+    send_text(id2, "[BOT] Cuộc trò chuyện bắt đầu")
 
 
 def disconnect(id):
@@ -119,24 +149,32 @@ def disconnect(id):
     user_data[partner_id]["state"] = "empty"
     user_data[partner_id]["partner"] = "empty"
 
-    send_message(id, "Cuộc trò chuyện đã kết thúc")
-    send_message(partner_id, "Cuộc trò chuyện đã kết thúc")
+    send_text(id, "[BOT] Cuộc trò chuyện đã kết thúc")
+    send_text(partner_id, "[BOT] Cuộc trò chuyện đã kết thúc")
 
 
-def send_message_to_partner(id, message):
+def send_to_partner(id, message_data, message_type):
     if user_data[id]["state"] == "connected":
-        send_message(user_data[id]["partner"], message)
+        if message_type == "text":
+            send_text(user_data[id]["partner"], message_data)
+        else: 
+            send_attachment(user_data[id]["partner"], message_data, message_type)
     else:
-        send_message(id, "Bạn không ở trong cuộc trò chuyện")
+        send_text(id, "[BOT] Bạn không ở trong cuộc trò chuyện")
 
 
 def create_user_data(id):
-    user_data[id] = {}
-    user_data[id]["state"] = "empty"
-    user_data[id]["partner"] = "empty"
+    if id not in user_data:
+        profile_URL = "https://graph.facebook.com/%s?fields=name&access_token=%s"%(id, PAGE_ACCESS_TOKEN)
+        response = requests.get(profile_URL)
+
+        user_data[id] = {}
+        user_data[id]["user_name"] = response.json()["name"]
+        user_data[id]["state"] = "empty"
+        user_data[id]["partner"] = "empty"
 
 
-def respond(id, message):
+def load_data():
     global user_data
     global waiting_room
 
@@ -147,30 +185,49 @@ def respond(id, message):
     user_data = data["user_data"]
     waiting_room = data["waiting_room"]
 
-    formated_message = message.lower()
-    if id not in user_data:
-        create_user_data(id)
 
-    if formated_message == "timban":
-        timban(id)
-    elif formated_message == "ketthuc":
-        ketthuc(id)
-    else:
-        send_message_to_partner(id, message)
+def save_data():
+    global data
 
     data["waiting_room"] = waiting_room
     data["user_data"] = user_data
 
-    with open('data_user.json' , 'w') as fp:
+    with open('data_user.json', 'w') as fp:
         json.dump(data, fp, indent=4)
 
 
-def is_user_message(message):
-    """Check if the message is a message from the user"""
-    return (message.get('message') and
-            message['message'].get('text') and
-            not message['message'].get("is_echo"))
+def process_command(id, command):
+    if command == "started":
+        send_text(id, "welcome!")
+    if command == "timban":
+        timban(id)
+    elif command == "ketthuc":
+        ketthuc(id)
+    elif command == "report":
+        report(id)
 
+
+def is_user_message(event):
+    """Check if the message is a message from the user"""
+    if "message" in event:
+        if "attachments" in event["message"] or "text" in event["message"]:
+            return 1
+
+    return 0
+
+
+def get_message(event):
+    if "attachments" in event["message"]:
+        message_type = event["message"]['attachments'][0]["type"]
+        message_data = event["message"]['attachments'][0]["payload"]["url"]
+
+    elif "text" in event["message"]:
+        message_type = "text"
+        message_data = event["message"]["text"]
+
+    return message_type, message_data
+
+    
 
 @app.route("/webhook", methods=['GET', 'POST'])
 def listen():
@@ -182,21 +239,42 @@ def listen():
     if request.method == 'POST':
         payload = request.json
         event = payload['entry'][0]['messaging']
-        for x in event:
-            print(x)
-            if is_user_message(x):
-                text = x['message']['text']
-                sender_id = x['sender']['id']
-                send_action(sender_id, "typing_on")
-                respond(sender_id, text)
+        print(event)
+        for current_event in event:
+            print(current_event)
 
-            if is_seen(x):
-                sender_id = x['sender']['id']
-                if sender_id in user_data and user_data[sender_id]["state"] == "connected":
+            if is_command(current_event):
+                sender_id = current_event['sender']['id']
+                create_user_data(sender_id)
+                send_action(sender_id, "typing_on")
+
+                command = current_event["postback"]["payload"]
+                process_command(sender_id, command)
+            
+            elif is_user_message(current_event):
+                sender_id = current_event['sender']['id']
+                create_user_data(sender_id)
+
+                message_type, message_data = get_message(current_event)
+                send_to_partner(sender_id, message_data, message_type)
+
+            if is_seen(current_event):
+                sender_id = current_event['sender']['id']
+                create_user_data(sender_id)
+
+                if user_data[sender_id]["state"] == "connected":
                     send_action(user_data[sender_id]["partner"], "mark_seen")
-                
+
+            # save_data()
+
         return "ok"
+
+
+@app.route("/", methods=['GET'])
+def main():
+    return data
 
 
 if __name__ == "__main__":
     app.run(threaded=True, port=5000)
+
