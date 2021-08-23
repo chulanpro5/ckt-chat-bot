@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "steadfast-sound-323813",
+  "private_key_id": "7b46387397728460d1669a302ce83e09fde95114",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDSP3kNcs2RgwOE\n3YK5Rr3mgMx3QTnZgXl9PxCBE1IZ8z2bNy6nwm/LgChBF8xQyRMd2gW/SRk0SpUx\nWccP2e7/ffKUQzd5tiRJn6u3vHldgUZYYufs4NlcKBvrB3Oww9eTQsU2gaKOkRrW\nWlRnwZT5uETDh1rzZI6rUjIPenUW9qffxsurqR56rJGlbf9gZZyou5mBAOZ0144x\nnz6I+dVO4IZaYA8oN5QfMGiGcS1Xt3MjK/yFmwDGjeoWpE2P481pJ3oCg5mCjBpJ\nwAD3eBKSdjHlf/9/yOiM7emM22GoCoRYtN76DjhykAW5lEUmn9QwjRAbzuznWPQR\n6olEQ3hPAgMBAAECggEATFGREhIpz9fEd77mvHWS6nC3h9SL+MnYfV/ekFQgmd3j\nb4vk6i2Y4kB3nEVUu8B5qXziWDDjLsmiBYOG0Fi2OlUQMMSDhzFYU8dbkHsgfRI3\npE7mzGREUoEWvUZ7tt8oSkLTDrmY9fJzUPsCJ5WsC8fZYjaoi7BlX4gbNuYnSbl/\nvZ/Y4JQvEBsDQi/cSwKcKcW8PE2BlrlSvfYIzCQIZeSpliEUIQl0L7JvXi2ECY62\ndwPC14Ak7l2rOvMZeWTV7x1PsnyB2xjJqx234F1hZJN7uJalSaRgJ33lYR6Qqt3i\nnud4T7GDpO0jR8BXdbguYMW1mU6b1Rm63A/TWvGs5QKBgQD1YIqGIDsSpTKX2uJ9\nZVcK1E6Z52KqXAW0xndap5ztOKyT6wpNZYrogUT6pFWGXmP8jYnVpUxYLygpMq8N\nGV+h7vd8mjeozF77JmTRktUbpADbxr2Bxf24PrMIOGG1DiSKkLMjLfE3WjxW7daG\njaqsUDvgMoSIgFvJJcmUKK/XHQKBgQDbWZpkpndiooGFTPkVFIumGtjgvKoL0gYS\nslORBLLazDFx/kWxd4uaylRGAGbQ3EufoU0kH7pH0pJIG27c/kY8iLp3EDGX8q8g\n3yYDzflGtB/AJePuspI/sJ+E2A5/F+pA3DsvPBbbKFd37Sypaein38GyAF7tm9t4\nSSqydM01WwKBgQDi2ARYKPXTr+tM3esi+Av3E/0yZOofCoGv9QakRW5bFFjfSpw0\nnxpDBjbp7ACw/xQ6h/MUEwO4Rqg/Jf8VAg8aGlyr0bqBD6cDUiREZxUiv4SXqWzK\ny2pa6YQDpnQVuORpQYqKjE+C16YOy0PXEqLlOCuSgcFqnBe+pnNryA1/tQKBgDpa\ntRtPufUQnHp1BtLX22r+O3JWXrq0Tg9NR7QN1vMkXYchCTN0RTyR1SemVbP811WJ\nWPdiRXF0EJyER9MdBlx2V3zzXu44juSk2P0sH8PyiXvZ2LCY6xVsjJOP0xN2rkhB\nDrG7P61gJxztiPMtDMsUWPhc5uQ5kYKHnIdLUYh/AoGBALnVw9XFDTInbSHCElfb\nLwxG5P/TgYsm9zHckt2loIZ92kECEHEYZ1G95DKV4Y7/zcF3qNKgFGGwUKBfnaSj\n3crESq/2AXJ3SMdEpnA1He0xq5gAmTPx2EXpUF422ucZvleRdHmScp8qG0s+Xo6e\nLuKQVI2zV2qm3lHW9vlGB61o\n-----END PRIVATE KEY-----\n",
+  "client_email": "chatbotckt@steadfast-sound-323813.iam.gserviceaccount.com",
+  "client_id": "110417637453519096845",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/chatbotckt%40steadfast-sound-323813.iam.gserviceaccount.com"
+}
