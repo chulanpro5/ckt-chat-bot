@@ -1,0 +1,17 @@
+{   
+    "timban-connected": "[CKT] Tàu chưa cập bến! Hãy bấm 'Dừng chân' để tiếp tục chuyến đi tiếp theo",
+    "timban-waiting": "[CKT] Bình tĩnh bạn nhé! Tụi mình vẫn đang tìm cho bạn chuyến tàu thích hợp",
+    "timban-empty": "[CKT] Để tớ tìm cho cậu một người bạn mới nào...",
+    "timban-empty-empty": "[CKT] Bạn đã có bạn đồng hành trên chuyến tàu này! Hãy tận hưởng nhé!",
+
+    
+    "ketthuc-connected": "[CKT] Chuyến tàu đã cập bến!",
+    "ketthuc-waiting": "[CKT] Kết thúc tìm kiếm chuyến tàu!",
+    "ketthuc-empty": "[CKT] ",
+
+    "report-connected": "[CKT] Có vẻ cậu đã không hài lòng về chuyến tàu này. Chúng tớ sẽ tiến hành kiểm tra ngay!",
+
+    "send_to_partner-notconnected": "[CKT] Tàu chưa khởi hành! Hãy bấm 'Khởi hành' nhé!",
+
+    "started": "[CKT] Chuyến tàu bắt đầu khởi hành! Cài dây cho chắc cậu nhé!"
+}
