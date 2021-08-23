@@ -5,7 +5,7 @@ from datetime import date, datetime
 	
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-SERVICE_ACCOUNT_FILE = '/report_command/key.json'
+SERVICE_ACCOUNT_FILE = 'key.json'
 credentials = None
 credentials = service_account.Credentials.from_service_account_file(
         SERVICE_ACCOUNT_FILE, scopes=SCOPES)
