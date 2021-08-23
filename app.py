@@ -1,6 +1,8 @@
 import requests
 from flask import Flask, request
 import json
+from datetime import date, datetime
+from report import send_report_infor
 
 app = Flask(__name__)
 
@@ -15,6 +17,8 @@ data = json.load(data)
 user_data = data["user_data"]
 waiting_room = data["waiting_room"]
 
+reply = open('reply.json',)
+reply = json.load(reply)
 
 def send_message(payload):
     auth = {
@@ -95,9 +99,9 @@ def verify_webhook(req):
 
 def timban(id):
     if user_data[id]["state"] == "connected":
-        send_text(id, "[BOT] Bạn đang ở trong cuộc trò chuyện")
+        send_text(id, reply["timban-connected"])
     elif user_data[id]["state"] == "waiting":
-        send_text(id, "[BOT] Đợi chút")
+        send_text(id, reply["timban-waiting"])
     elif user_data[id]["state"] == "empty":
         find_partner(id)
 
@@ -105,22 +109,22 @@ def ketthuc(id):
     if user_data[id]["state"] == "connected":
         disconnect(id)
     elif user_data[id]["state"] == "waiting":
-        send_text(id, "[BOT] Bạn đang tìm kiếm cuộc trò chuyện")
+        user_data[id]["state"] = "empty"
+        send_text(id, reply["ketthuc-waiting"])
     elif user_data[id]["state"] == "empty":
-        send_text(id, "[BOT] Bạn chưa bắt đầu cuộc trò chuyện")
+        send_text(id, reply["ketthuc-empty"])
 
 def report(id):
     if user_data[id]["state"] == "connected":
         partner_id = user_data[id]["partner_id"]
-        send_text(id, "[BOT] Cảm ơn bạn đã báo cáo")
-        send_text(partner_id, "[BOT] Bạn đã bị đối phương báo cáo, hãy cẩn trọng với ngôn từ của bạn")
-        #send_text(ADMIND_ID,)
-    else:
-        send_text(id, "[BOT] Bạn chưa bắt đầu cuộc trò chuyện")
+        send_text(id, reply["report-connected"])
+        now = datetime.now()
+        date_time = now.strftime("%d/%m/%Y %H:%M")
+        send_report_infor(user_data[id]["user_name"], user_data[partner_id]["user_name"], date_time)
 
 def find_partner(id):
     if waiting_room["state"] == "empty":
-        send_text(id, "Đợi chút")
+        send_text(id, reply["timban-empty"])
         waiting_room["id"] = id
         waiting_room["state"] = "waiting"
         user_data[id]["state"] = "waiting"
@@ -137,8 +141,8 @@ def connect(id1, id2):
     waiting_room["state"] = "empty"
     waiting_room["id"] = ""
 
-    send_text(id1, "[BOT] Cuộc trò chuyện bắt đầu")
-    send_text(id2, "[BOT] Cuộc trò chuyện bắt đầu")
+    send_text(id1, reply["timban-empty-empty"])
+    send_text(id2, reply["timban-empty-empty"])
 
 
 def disconnect(id):
@@ -149,8 +153,8 @@ def disconnect(id):
     user_data[partner_id]["state"] = "empty"
     user_data[partner_id]["partner"] = "empty"
 
-    send_text(id, "[BOT] Cuộc trò chuyện đã kết thúc")
-    send_text(partner_id, "[BOT] Cuộc trò chuyện đã kết thúc")
+    send_text(id, reply["ketthuc-connected"])
+    send_text(partner_id, reply["ketthuc-connected"])
 
 
 def send_to_partner(id, message_data, message_type):
@@ -160,7 +164,7 @@ def send_to_partner(id, message_data, message_type):
         else: 
             send_attachment(user_data[id]["partner"], message_data, message_type)
     else:
-        send_text(id, "[BOT] Bạn không ở trong cuộc trò chuyện")
+        send_text(id, reply["send_to_partner-notconnected"])
 
 
 def create_user_data(id):
@@ -198,7 +202,7 @@ def save_data():
 
 def process_command(id, command):
     if command == "started":
-        send_text(id, "welcome!")
+        send_text(id, reply["started"])
     if command == "timban":
         timban(id)
     elif command == "ketthuc":
@@ -277,4 +281,3 @@ def main():
 
 if __name__ == "__main__":
     app.run(threaded=True, port=5000)
-
