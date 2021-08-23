@@ -25,16 +25,16 @@ def send_report_infor(user_report, user_reported, data):
         global count
 
         if count == 0:
-                infor = [["Người báo cáo", "Người bị báo cáo","Thời gian"]]
+                infor = [["Người báo cáo", "Người bị báo cáo","Thời gian"], [user_report, user_reported, data]]
                 request = sheet.values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID,
                                         range = "test!A1", valueInputOption = "USER_ENTERED",
                                         body = {"values": infor}).execute()
+                count = 1
+                return
+                
+
         count = count + 1
         
-
-        now = datetime.now()
-        date_time = now.strftime("%d/%m/%Y %H:%M")
-        print(date_time)
 
         infor = [user_report, user_reported, data]
         request = sheet.values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID,

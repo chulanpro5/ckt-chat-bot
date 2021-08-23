@@ -17,7 +17,7 @@ data = json.load(data)
 user_data = data["user_data"]
 waiting_room = data["waiting_room"]
 
-reply = open('reply.json',)
+reply = open('reply.json',encoding="utf8")
 reply = json.load(reply)
 
 def send_message(payload):
