@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 FB_API_URL = 'https://graph.facebook.com/v2.6/me/messages'
 VERIFY_TOKEN = '123456'  # <paste your verify token here>
-PAGE_ACCESS_TOKEN = 'EABAMQ9TnhaEBAEuiotgOmiopAZAeywIb8yL4vdgF2PE0Duhf9OM1tA6ZAsaJ3NfVS4pmGZCwPBQYJsJEVP3htqSkCZBalTDc1jy2IDZCZAXAZCyfMHHccSE6bAZAvzUZBpISGTEtWPbEbZBUYFCRgVpEXw3h86zxt2nBu81T0YGv0V8iVqRZAJ8wizb'  # paste your page access token here>"
+PAGE_ACCESS_TOKEN = 'EAAFZAXBWQCHQBAOksVHZBBrH2h4llnUR5ok9VZBdueMeE1E3ZArwQHGNVcxWe8Hguhq2IDFIkeXPQPpkuHnXmuAUSQmkrCucU1PeYA8OpLeq6YzVnteSnXmqyrrb69jABu1IZA8iL1hjc42kxZBU4dC14m5n683IakwCcRAmUDZCZC8e7jOdxvQF'  # paste your page access token here>"
 
 data = open('data_user.json',)
 
@@ -110,6 +110,8 @@ def ketthuc(id):
         disconnect(id)
     elif user_data[id]["state"] == "waiting":
         user_data[id]["state"] = "empty"
+        waiting_room["id"] = ""
+        waiting_room["state"] = "empty"
         send_text(id, reply["ketthuc-waiting"])
     elif user_data[id]["state"] == "empty":
         send_text(id, reply["ketthuc-empty"])
@@ -202,6 +204,7 @@ def save_data():
 
 def process_command(id, command):
     if command == "started":
+        create_user_data(id)
         send_text(id, reply["started"])
     if command == "timban":
         timban(id)
@@ -214,8 +217,9 @@ def process_command(id, command):
 def is_user_message(event):
     """Check if the message is a message from the user"""
     if "message" in event:
-        if "attachments" in event["message"] or "text" in event["message"]:
-            return 1
+        if not event["message"].get("is_echo"):
+            if "attachments" in event["message"] or "text" in event["message"]:
+                return 1
 
     return 0
 
@@ -241,15 +245,17 @@ def listen():
         return verify_webhook(request)
 
     if request.method == 'POST':
+        load_data()
+
         payload = request.json
         event = payload['entry'][0]['messaging']
-        print(event)
+        #print(event)
         for current_event in event:
             print(current_event)
 
             if is_command(current_event):
                 sender_id = current_event['sender']['id']
-                create_user_data(sender_id)
+                #create_user_data(sender_id)
                 send_action(sender_id, "typing_on")
 
                 command = current_event["postback"]["payload"]
@@ -257,20 +263,21 @@ def listen():
             
             elif is_user_message(current_event):
                 sender_id = current_event['sender']['id']
-                create_user_data(sender_id)
+                #create_user_data(sender_id)
 
                 message_type, message_data = get_message(current_event)
                 send_to_partner(sender_id, message_data, message_type)
 
             if is_seen(current_event):
                 sender_id = current_event['sender']['id']
-                create_user_data(sender_id)
+                #create_user_data(sender_id)
 
                 if user_data[sender_id]["state"] == "connected":
                     send_action(user_data[sender_id]["partner"], "mark_seen")
 
             # save_data()
-
+            
+        save_data()
         return "ok"
 
 
