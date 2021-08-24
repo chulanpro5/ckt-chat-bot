@@ -272,6 +272,7 @@ def is_seen(event):
 
 
 def create_user(id):
+    load_data()
     if id not in user_data:
         profile_URL = "https://graph.facebook.com/%s?fields=name&access_token=%s" % (
             id, PAGE_ACCESS_TOKEN)
@@ -285,6 +286,7 @@ def create_user(id):
         user_data[id]["partner"] = "empty"
 
         print(user_data)
+    save_data()
 
 
 def load_data():
