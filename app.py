@@ -1,5 +1,6 @@
 import requests
 from flask import Flask, request
+from flask import jsonify
 import json
 from datetime import date, datetime
 from report import send_report_infor
@@ -278,7 +279,7 @@ def listen():
             # save_data()
             
         save_data()
-        return "ok"
+        return jsonify(result={"status": 200})
 
 
 @app.route("/", methods=['GET'])
