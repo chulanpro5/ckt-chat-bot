@@ -274,6 +274,8 @@ def listen():
                 sender_id = current_event['sender']['id']
                 #create_user_data(sender_id)
 
+                print(user_data)
+
                 if user_data[sender_id]["state"] == "connected":
                     send_action(user_data[sender_id]["partner"], "mark_seen")
 
