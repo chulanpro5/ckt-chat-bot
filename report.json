@@ -1,0 +1,31 @@
+{
+    "batdau": {
+        "type": "postback",
+        "title": "Khởi hành",
+        "payload": "timban"
+    },
+    "ketthuc": {
+        "type": "postback",
+        "title": "Kết thúc",
+        "payload": "ketthuc"
+    },
+    "report": {
+        "type": "postback",
+        "title": "Báo cáo",
+        "payload": "report"
+    },
+    "phanhoi": {
+        "type": "web_url",
+        "title": "Gửi phản hồi",
+        "url": "https://docs.google.com/forms/d/e/1FAIpQLSfG_FC5wba-pvwg0z-fxhTyKUuLM8eZ1Y6e1qo1xRnxCOC4IA/viewform?usp=sf_link",
+        "webview_height_ratio": "full"
+    },
+    "rule": {
+        "type": "web_url",
+        "title": "Xem luật",
+        "url": "https://www.facebook.com/",
+        "webview_height_ratio": "full"
+    }
+    
+
+}

@@ -18,6 +18,9 @@ data = open('data.json',)
 data = json.load(data)
 reply = open('reply.json',  encoding="utf8")
 reply = json.load(reply)
+buttons = open('buttons.json',encoding="utf8")
+buttons = json.load(buttons)
+
 user_data = data["user_data"]
 waiting_room = data["waiting_room"]
 count = data["count"]
@@ -67,6 +70,25 @@ def send_text(recipient_id, text):
 
     send_message(payload)
 
+def send_buttons(recipient_id, text, buttons):
+    payload = {
+        "message":{
+            "attachment":{
+                "type":"template",
+                "payload":{
+                    "template_type":"button",
+                    "text": text,
+                    "buttons": buttons
+                }
+            }
+        },
+        'recipient': {
+            'id': recipient_id
+        },
+        'notification_type': 'regular'
+    }
+
+    return send_message(payload)
 
 def send_action(recipient_id, action):
     payload = {
@@ -108,7 +130,7 @@ def is_command(event):
 
 def process_command(id, command):
     if command == "started":
-        send_text(id, reply["started"])
+        send_buttons(id, reply["started"], [buttons["rule"], buttons["timban"]])
         create_user(id)
     if command == "timban":
         timban(id)
@@ -120,7 +142,7 @@ def process_command(id, command):
 
 def timban(id):
     if user_data[id]["state"] == "connected":
-        send_text(id, reply["timban-connected"])
+        send_buttons(id, reply["timban-connected"], [buttons["ketthuc"]])
     elif user_data[id]["state"] == "waiting":
         send_text(id, reply["timban-waiting"])
     elif user_data[id]["state"] == "empty":
@@ -134,6 +156,7 @@ def find_partner(id):
         waiting_room["state"] = "waiting"
         user_data[id]["state"] = "waiting"
     elif waiting_room["state"] == "waiting":
+        send_text(id, reply["timban-empty"])
         connect(id, waiting_room["id"])
 
 
@@ -159,7 +182,7 @@ def ketthuc(id):
         waiting_room["state"] = "empty"
         send_text(id, reply["ketthuc-waiting"])
     elif user_data[id]["state"] == "empty":
-        send_text(id, reply["ketthuc-empty"])
+        send_buttons(id, reply["ketthuc-empty"], [buttons["timban"]])
 
 
 def disconnect(id):
@@ -170,8 +193,9 @@ def disconnect(id):
     user_data[partner_id]["state"] = "empty"
     user_data[partner_id]["partner"] = "empty"
 
-    send_text(id, reply["ketthuc-connected"])
-    send_text(partner_id, reply["ketthuc-connected"])
+    send_buttons(id, reply["ketthuc-connected"], [buttons["timban"]])
+    send_buttons(partner_id, reply["ketthuc-connected"], [buttons["timban"]])
+
 
 
 def report(id):
@@ -197,12 +221,12 @@ def send_report_infor(user_report, user_reported, data, id):
     pos = "test!A" + str(count)
     infor = [[user_report, user_reported, data]]
 
-    print("----------------------------")
-    print(infor)
-    print(count)
-    print(pos)
-    print("----------------------------")
-    send_text(id, reply["report-connected"])
+    # print("----------------------------")
+    # print(infor)
+    # print(count)
+    # print(pos)
+    # print("----------------------------")
+    send_buttons(id, reply["report-connected"], [buttons["ketthuc"]])
 
     request = sheet.values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID,
                                     range=pos, valueInputOption="USER_ENTERED",
@@ -238,8 +262,9 @@ def send_to_partner(id, message_data, message_type):
         else:
             send_attachment(user_data[id]["partner"],
                             message_data, message_type)
-    else:
-        send_text(id, reply["send_to_partner-notconnected"])
+    elif user_data[id]["state"] == "waiting":
+        send_text(id, reply["send_to_partner-waiting"])
+    else: send_buttons(id, reply["send_to_partner-empty"], [buttons["timban"]])
 
 
 def is_seen(event):
@@ -292,7 +317,7 @@ def listen():
         load_data()
         payload = request.json
         event = payload['entry'][0]['messaging']
-        print(event)
+        #print(event)
         for current_event in event:
             print(current_event)
 
