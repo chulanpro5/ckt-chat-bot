@@ -176,7 +176,7 @@ def create_user_data(id):
         response = requests.get(profile_URL)
 
         user_data[id] = {}
-        print(response.json())
+        #print(response.json())
         user_data[id]["user_name"] = response.json()["name"]
         user_data[id]["state"] = "empty"
         user_data[id]["partner"] = "empty"
@@ -274,10 +274,10 @@ def listen():
                 sender_id = current_event['sender']['id']
                 #create_user_data(sender_id)
 
-                print(user_data)
-
-                if user_data[sender_id]["state"] == "connected":
-                    send_action(user_data[sender_id]["partner"], "mark_seen")
+                #print(user_data)
+                if sender_id in user_data:
+                    if user_data[sender_id]["state"] == "connected":
+                        send_action(user_data[sender_id]["partner"], "mark_seen")
 
             # save_data()
             
