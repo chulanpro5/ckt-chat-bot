@@ -1,5 +1,5 @@
 {
-    "batdau": {
+    "timban": {
         "type": "postback",
         "title": "Khởi hành",
         "payload": "timban"
