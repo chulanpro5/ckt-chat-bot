@@ -313,8 +313,9 @@ def listen():
 
         save_data()
 
-        return jsonify(result={"status": 200})
+        #return jsonify(result={"status": 200})
 
+    return "ok"
 
 @app.route("/", methods=['GET'])
 def main():
