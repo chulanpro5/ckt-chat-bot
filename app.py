@@ -14,12 +14,13 @@ VERIFY_TOKEN = '123456'  # <paste your verify token here>
 PAGE_ACCESS_TOKEN = 'EABAMQ9TnhaEBAEuiotgOmiopAZAeywIb8yL4vdgF2PE0Duhf9OM1tA6ZAsaJ3NfVS4pmGZCwPBQYJsJEVP3htqSkCZBalTDc1jy2IDZCZAXAZCyfMHHccSE6bAZAvzUZBpISGTEtWPbEbZBUYFCRgVpEXw3h86zxt2nBu81T0YGv0V8iVqRZAJ8wizb'  # paste your page access token here>"
 
 
-data = open('data_user.json',)
+data = open('data.json',)
 data = json.load(data)
 reply = open('reply.json',  encoding="utf8")
 reply = json.load(reply)
 user_data = data["user_data"]
 waiting_room = data["waiting_room"]
+count = data["count"]
 
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
@@ -29,7 +30,6 @@ credentials = service_account.Credentials.from_service_account_file(
     SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 SAMPLE_SPREADSHEET_ID = '1461y4vKxSoPwaDV6wUuLAqObNXwEWZ3Hmq27pKywbt0'
 service = build('sheets', 'v4', credentials=credentials)
-count = 1
 sheet = service.spreadsheets()
 
 
@@ -261,13 +261,14 @@ def create_user(id):
 def load_data():
     global user_data
     global waiting_room
-
-    data = open('data_user/data_user.json',)
+    global count
+    data = open('data_user/data.json',)
 
     data = json.load(data)
 
     user_data = data["user_data"]
     waiting_room = data["waiting_room"]
+    count = data["count"]
 
 
 def save_data():
@@ -275,8 +276,8 @@ def save_data():
 
     data["waiting_room"] = waiting_room
     data["user_data"] = user_data
-
-    with open('data_user/data_user.json', 'w') as fp:
+    data["count"] = count
+    with open('data_user/data.json', 'w') as fp:
         json.dump(data, fp, indent=4)
 
 
