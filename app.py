@@ -277,6 +277,8 @@ def create_user(id):
             id, PAGE_ACCESS_TOKEN)
         response = requests.get(profile_URL)
 
+        print(response.json())
+
         user_data[id] = {}
         user_data[id]["user_name"] = response.json()["name"]
         user_data[id]["state"] = "empty"
