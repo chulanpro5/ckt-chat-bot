@@ -292,8 +292,9 @@ def listen():
         load_data()
         payload = request.json
         event = payload['entry'][0]['messaging']
+        print(event)
         for current_event in event:
-            print(current_event)
+            #print(current_event)
 
             if is_command(current_event):
                 sender_id = current_event['sender']['id']
