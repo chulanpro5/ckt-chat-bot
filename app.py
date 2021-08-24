@@ -323,7 +323,7 @@ def listen():
         event = payload['entry'][0]['messaging']
         #print(event)
         for current_event in event:
-            load_data()
+            #load_data()
             print(current_event)
 
             if is_command(current_event):
@@ -342,7 +342,7 @@ def listen():
                 if sender_id in user_data and user_data[sender_id]["state"] == "connected":
                     send_action(user_data[sender_id]["partner"], "mark_seen")
 
-            save_data()
+            #save_data()
 
         #return jsonify(result={"status": 200})
 
