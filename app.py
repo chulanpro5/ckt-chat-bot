@@ -141,7 +141,6 @@ def process_command(id, command):
 
 
 def timban(id):
-    create_user(id)
     if user_data[id]["state"] == "connected":
         send_buttons(id, reply["timban-connected"], [buttons["ketthuc"]])
     elif user_data[id]["state"] == "waiting":
@@ -273,7 +272,6 @@ def is_seen(event):
 
 
 def create_user(id):
-    load_data()
     if id not in user_data:
         profile_URL = "https://graph.facebook.com/%s?fields=name&access_token=%s" % (
             id, PAGE_ACCESS_TOKEN)
@@ -287,7 +285,6 @@ def create_user(id):
         user_data[id]["partner"] = "empty"
 
         print(user_data)
-    save_data()
 
 
 def load_data():
@@ -321,11 +318,12 @@ def listen():
         return verify_webhook(request)
 
     if request.method == 'POST':
-        load_data()
+        
         payload = request.json
         event = payload['entry'][0]['messaging']
         #print(event)
         for current_event in event:
+            load_data()
             print(current_event)
 
             if is_command(current_event):
@@ -344,7 +342,7 @@ def listen():
                 if sender_id in user_data and user_data[sender_id]["state"] == "connected":
                     send_action(user_data[sender_id]["partner"], "mark_seen")
 
-        save_data()
+            save_data()
 
         #return jsonify(result={"status": 200})
 
