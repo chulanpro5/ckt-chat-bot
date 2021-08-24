@@ -284,6 +284,8 @@ def create_user(id):
         user_data[id]["state"] = "empty"
         user_data[id]["partner"] = "empty"
 
+        print(user_data)
+
 
 def load_data():
     global user_data
