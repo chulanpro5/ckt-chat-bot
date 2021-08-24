@@ -141,6 +141,7 @@ def process_command(id, command):
 
 
 def timban(id):
+    create_user(id)
     if user_data[id]["state"] == "connected":
         send_buttons(id, reply["timban-connected"], [buttons["ketthuc"]])
     elif user_data[id]["state"] == "waiting":
