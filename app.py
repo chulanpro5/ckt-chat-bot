@@ -119,7 +119,7 @@ def ketthuc(id):
 
 def report(id):
     if user_data[id]["state"] == "connected":
-        partner_id = user_data[id]["partner_id"]
+        partner_id = user_data[id]["partner"]
         send_text(id, reply["report-connected"])
         now = datetime.now()
         date_time = now.strftime("%d/%m/%Y %H:%M")
