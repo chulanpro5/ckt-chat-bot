@@ -186,7 +186,7 @@ def load_data():
     global user_data
     global waiting_room
 
-    data = open('data_user.json',)
+    data = open('data.json',)
 
     data = json.load(data)
 
@@ -200,7 +200,7 @@ def save_data():
     data["waiting_room"] = waiting_room
     data["user_data"] = user_data
 
-    with open('data_user.json', 'w') as fp:
+    with open('data.json', 'w') as fp:
         json.dump(data, fp, indent=4)
 
 
