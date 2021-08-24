@@ -277,14 +277,12 @@ def create_user(id):
             id, PAGE_ACCESS_TOKEN)
         response = requests.get(profile_URL)
 
-        print(response.json())
+        #print(response.json())
 
         user_data[id] = {}
         user_data[id]["user_name"] = response.json()["name"]
         user_data[id]["state"] = "empty"
         user_data[id]["partner"] = "empty"
-
-        print(user_data)
 
 
 def load_data():
@@ -344,6 +342,8 @@ def listen():
 
             #save_data()
 
+            #print(user_data)
+
         #return jsonify(result={"status": 200})
 
     return "ok"
@@ -354,4 +354,5 @@ def main():
 
 
 if __name__ == "__main__":
-    app.run(threaded=True, port=5000)
+    #app.run(threaded=True, port=5000)
+    app.run(threaded=False, processes=1, port = 5000)
