@@ -11,7 +11,7 @@ FB_API_URL = 'https://graph.facebook.com/v2.6/me/messages'
 VERIFY_TOKEN = '123456'  # <paste your verify token here>
 PAGE_ACCESS_TOKEN = 'EAAFZAXBWQCHQBAOksVHZBBrH2h4llnUR5ok9VZBdueMeE1E3ZArwQHGNVcxWe8Hguhq2IDFIkeXPQPpkuHnXmuAUSQmkrCucU1PeYA8OpLeq6YzVnteSnXmqyrrb69jABu1IZA8iL1hjc42kxZBU4dC14m5n683IakwCcRAmUDZCZC8e7jOdxvQF'  # paste your page access token here>"
 
-data = open('data_user.json',)
+data = open('data.json',)
 
 data = json.load(data)
 
