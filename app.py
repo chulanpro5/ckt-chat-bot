@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 FB_API_URL = 'https://graph.facebook.com/v2.6/me/messages'
 VERIFY_TOKEN = '123456'  # <paste your verify token here>
-PAGE_ACCESS_TOKEN = 'EABAMQ9TnhaEBAEuiotgOmiopAZAeywIb8yL4vdgF2PE0Duhf9OM1tA6ZAsaJ3NfVS4pmGZCwPBQYJsJEVP3htqSkCZBalTDc1jy2IDZCZAXAZCyfMHHccSE6bAZAvzUZBpISGTEtWPbEbZBUYFCRgVpEXw3h86zxt2nBu81T0YGv0V8iVqRZAJ8wizb'  # paste your page access token here>"
+PAGE_ACCESS_TOKEN = 'EAAFZAXBWQCHQBAEG4HwBZAt0VZC3Yjmf4FxRiebORBhzWdGN4wZAZAz75kGvhihDHrpvPZC96VGFeINKaBQtOqOT3PbZBq6UsywrxFw2s2J5Es9TRLzta2YyqRx2oNWZCSRJ157UeUtgQ7gsvgjHYA0cyVXMeb0gq9V7WE3mooALqFb6gLhDO5H8'  # paste your page access token here>"
 
 
 data = open('data.json',)
@@ -294,7 +294,7 @@ def listen():
         event = payload['entry'][0]['messaging']
         print(event)
         for current_event in event:
-            #print(current_event)
+            print(current_event)
 
             if is_command(current_event):
                 sender_id = current_event['sender']['id']
