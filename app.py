@@ -10,7 +10,7 @@ import pytz
 import pymongo
 import certifi
 
-connection_url = 'mongodb+srv://nxhieu3102:xuanhieu1302@cluster0.rqnnm.mongodb.net/?retryWrites=true&w=majority'
+connection_url = 'mongodb+srv://chulanpro5:fEZ8kJ5jAO7kGULN@test.tz6cj.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
 app = Flask(__name__)
 client = pymongo.MongoClient(connection_url, tlsCAFile=certifi.where())
 
@@ -22,7 +22,7 @@ mongo_data = Database.User_data
 
 FB_API_URL = 'https://graph.facebook.com/v2.6/me/messages'
 VERIFY_TOKEN = '123456'  # <paste your verify token here>
-PAGE_ACCESS_TOKEN = 'EAAFZAXBWQCHQBAEG4HwBZAt0VZC3Yjmf4FxRiebORBhzWdGN4wZAZAz75kGvhihDHrpvPZC96VGFeINKaBQtOqOT3PbZBq6UsywrxFw2s2J5Es9TRLzta2YyqRx2oNWZCSRJ157UeUtgQ7gsvgjHYA0cyVXMeb0gq9V7WE3mooALqFb6gLhDO5H8'  # paste your page access token here>"
+PAGE_ACCESS_TOKEN = 'EAAFZAXBWQCHQBABNCfjfZBNbOf0RgzZCb9NlRjdZA6dSmwZCe0mZCBB1rtpSqVtZCfribnd2AWjRBZBNEGVIwdt57mjpSpzYwByv2n5U4E9mTLgSEcZAIFMGuIgPRIZCxpjdYHp00jZCTrjOZCSNK85t5LRdAJTslbpCT2Wf6s1unZBZBxp8SPqHqHyGLE'  # paste your page access token here>"
 
 
 reply = open('reply.json',  encoding="utf8")
@@ -151,7 +151,7 @@ def process_command(id, command):
 
     if command == "started":
         send_buttons(id, reply["started"], [buttons["rule"], buttons["timban"]])
-        create_user(id)
+        create_user_started(id)
     if command == "timban":
         timban(id)
     elif command == "ketthuc":
@@ -238,8 +238,8 @@ def disconnect(id):
     user_data[partner_id]["state"] = "empty"
     user_data[partner_id]["partner"] = "empty"
 
-    send_buttons(id, reply["ketthuc-connected"], [buttons["timban"]])
-    send_buttons(partner_id, reply["ketthuc-connected"], [buttons["timban"]])
+    send_buttons(id, reply["ketthuc-connected"], [buttons["phanhoi"], buttons["timban"]])
+    send_buttons(partner_id, reply["ketthuc-connected"], [buttons["phanhoi"], buttons["timban"]])
 
 
 
@@ -297,13 +297,13 @@ def is_user_message(event):
 
 
 def get_message(event):
-    if "attachments" in event["message"]:
-        message_type = event["message"]['attachments'][0]["type"]
-        message_data = event["message"]['attachments'][0]["payload"]["url"]
-
-    elif "text" in event["message"]:
+    if "text" in event["message"]:
         message_type = "text"
         message_data = event["message"]["text"]
+
+    elif "attachments" in event["message"]:
+        message_type = event["message"]['attachments'][0]["type"]
+        message_data = event["message"]['attachments'][0]["payload"]["url"]
 
     return message_type, message_data
 
@@ -323,6 +323,23 @@ def send_to_partner(id, message_data, message_type):
 def is_seen(event):
     return (event.get('read'))
 
+
+def create_user_started(id):
+    global user_data
+    global waiting_room
+    global count
+    global data
+
+    profile_URL = "https://graph.facebook.com/%s?fields=name&access_token=%s" % (
+        id, PAGE_ACCESS_TOKEN)
+    response = requests.get(profile_URL)
+
+    #print(response.json())
+
+    user_data[id] = {}
+    user_data[id]["user_name"] = response.json()["name"]
+    user_data[id]["state"] = "empty"
+    user_data[id]["partner"] = "empty"
 
 def create_user(id):
     global user_data
@@ -351,8 +368,8 @@ def load_data():
 
     queryObject = {"Type": 'data'}
     query = mongo_data.find_one(queryObject)
-    print('------------------load-----------------')
-    print(query)
+    # print('------------------load-----------------')
+    # print(query)
     query.pop('_id')
 
     data = query["Data"]
@@ -372,8 +389,8 @@ def save_data():
     data["user_data"] = user_data
     data["count"] = count
 
-    print('------------------save-----------------')
-    print(data)
+    # print('------------------save-----------------')
+    # print(data)
 
 
     queryObject = {'Type': 'data'}
@@ -398,20 +415,28 @@ def listen():
         payload = request.json
         event = payload['entry'][0]['messaging']
         for current_event in event:
+            print('-----------------start--------------------')
             print(current_event)
+            print('-----------------end--------------------')
             if is_command(current_event):
                 sender_id = current_event['sender']['id']
+                create_user(sender_id)
+
                 send_action(sender_id, "typing_on")
                 command = current_event["postback"]["payload"]
                 process_command(sender_id, command)
 
             elif is_user_message(current_event):
                 sender_id = current_event['sender']['id']
+                create_user(sender_id)
+
                 message_type, message_data = get_message(current_event)
                 send_to_partner(sender_id, message_data, message_type)
 
             if is_seen(current_event):
                 sender_id = current_event['sender']['id']
+                create_user(sender_id)
+
                 if sender_id in user_data and user_data[sender_id]["state"] == "connected":
                     send_action(user_data[sender_id]["partner"], "mark_seen")
 
