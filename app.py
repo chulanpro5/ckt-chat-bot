@@ -1,29 +1,39 @@
 import requests
-from flask import Flask, request
+from flask import Flask, request,jsonify, request
+from flask_cors import CORS
 import json
 from datetime import date, datetime
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
 from flask import jsonify
 import pytz 
+import pymongo
+import certifi
 
+connection_url = 'mongodb+srv://nxhieu3102:xuanhieu1302@cluster0.rqnnm.mongodb.net/?retryWrites=true&w=majority'
 app = Flask(__name__)
+client = pymongo.MongoClient(connection_url, tlsCAFile=certifi.where())
+
+# Database
+Database = client.get_database('ckt-chat-bot')
+# Table
+mongo_data = Database.User_data
+
 
 FB_API_URL = 'https://graph.facebook.com/v2.6/me/messages'
 VERIFY_TOKEN = '123456'  # <paste your verify token here>
 PAGE_ACCESS_TOKEN = 'EAAFZAXBWQCHQBAEG4HwBZAt0VZC3Yjmf4FxRiebORBhzWdGN4wZAZAz75kGvhihDHrpvPZC96VGFeINKaBQtOqOT3PbZBq6UsywrxFw2s2J5Es9TRLzta2YyqRx2oNWZCSRJ157UeUtgQ7gsvgjHYA0cyVXMeb0gq9V7WE3mooALqFb6gLhDO5H8'  # paste your page access token here>"
 
 
-data = open('data.json',)
-data = json.load(data)
 reply = open('reply.json',  encoding="utf8")
 reply = json.load(reply)
 buttons = open('buttons.json',encoding="utf8")
 buttons = json.load(buttons)
 
-user_data = data["user_data"]
-waiting_room = data["waiting_room"]
-count = data["count"]
+data = {}
+user_data = {}
+waiting_room = {}
+count = {}
 
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
@@ -121,6 +131,11 @@ def send_attachment(recipient_id, attachment_url, type):
 
 
 def is_command(event):
+    global user_data
+    global waiting_room
+    global count
+    global data
+
     if "postback" in event:
         if "payload" in event["postback"]:
             return event["postback"]["payload"]
@@ -129,6 +144,11 @@ def is_command(event):
 
 
 def process_command(id, command):
+    global user_data
+    global waiting_room
+    global count
+    global data
+
     if command == "started":
         send_buttons(id, reply["started"], [buttons["rule"], buttons["timban"]])
         create_user(id)
@@ -141,6 +161,11 @@ def process_command(id, command):
 
 
 def timban(id):
+    global user_data
+    global waiting_room
+    global count
+    global data
+
     if user_data[id]["state"] == "connected":
         send_buttons(id, reply["timban-connected"], [buttons["ketthuc"]])
     elif user_data[id]["state"] == "waiting":
@@ -150,6 +175,11 @@ def timban(id):
 
 
 def find_partner(id):
+    global user_data
+    global waiting_room
+    global count
+    global data
+
     if waiting_room["state"] == "empty":
         send_text(id, reply["timban-empty"])
         waiting_room["id"] = id
@@ -161,6 +191,11 @@ def find_partner(id):
 
 
 def connect(id1, id2):
+    global user_data
+    global waiting_room
+    global count
+    global data
+
     user_data[id1]["state"] = "connected"
     user_data[id1]["partner"] = id2
     user_data[id2]["state"] = "connected"
@@ -174,6 +209,11 @@ def connect(id1, id2):
 
 
 def ketthuc(id):
+    global user_data
+    global waiting_room
+    global count
+    global data
+
     if user_data[id]["state"] == "connected":
         disconnect(id)
     elif user_data[id]["state"] == "waiting":
@@ -186,6 +226,11 @@ def ketthuc(id):
 
 
 def disconnect(id):
+    global user_data
+    global waiting_room
+    global count
+    global data
+
     partner_id = user_data[id]["partner"]
 
     user_data[id]["state"] = "empty"
@@ -199,6 +244,11 @@ def disconnect(id):
 
 
 def report(id):
+    global user_data
+    global waiting_room
+    global count
+    global data
+
     if user_data[id]["state"] == "connected":
         partner_id = user_data[id]["partner"]
         timezone = pytz.timezone('Asia/Saigon')
@@ -208,8 +258,11 @@ def report(id):
                           user_data[partner_id]["user_name"], date_time, id)
 
 
-def send_report_infor(user_report, user_reported, data, id):
+def send_report_infor(user_report, user_reported, report_data, id):
+    global user_data
+    global waiting_room
     global count
+    global data
 
     if count == 1:
         infor = [["Người báo cáo", "Người bị báo cáo", "Thời gian"]]
@@ -219,7 +272,7 @@ def send_report_infor(user_report, user_reported, data, id):
     count = count + 1
 
     pos = "test!A" + str(count)
-    infor = [[user_report, user_reported, data]]
+    infor = [[user_report, user_reported, report_data]]
 
     # print("----------------------------")
     # print(infor)
@@ -272,6 +325,11 @@ def is_seen(event):
 
 
 def create_user(id):
+    global user_data
+    global waiting_room
+    global count
+    global data
+
     if id not in user_data:
         profile_URL = "https://graph.facebook.com/%s?fields=name&access_token=%s" % (
             id, PAGE_ACCESS_TOKEN)
@@ -289,41 +347,58 @@ def load_data():
     global user_data
     global waiting_room
     global count
-    data = open('data.json',)
+    global data
 
-    data = json.load(data)
+    queryObject = {"Type": 'data'}
+    query = mongo_data.find_one(queryObject)
+    print('------------------load-----------------')
+    print(query)
+    query.pop('_id')
 
-    user_data = data["user_data"]
+    data = query["Data"]
+
+    user_data = data['user_data']
     waiting_room = data["waiting_room"]
     count = data["count"]
 
 
 def save_data():
+    global user_data
+    global waiting_room
+    global count
     global data
 
     data["waiting_room"] = waiting_room
     data["user_data"] = user_data
     data["count"] = count
-    with open('data.json', 'w') as fp:
-        json.dump(data, fp, indent=4)
+
+    print('------------------save-----------------')
+    print(data)
+
+
+    queryObject = {'Type': 'data'}
+    updateObject = {"Data": data} 
+    mongo_data.update_one(queryObject, {'$set': updateObject})
 
 
 @app.route("/webhook", methods=['GET', 'POST'])
 def listen():
+    global user_data
+    global waiting_room
+    global count
+    global data
+
     """This is the main function flask uses to 
     listen at the `/webhook` endpoint"""
     if request.method == "GET":
         return verify_webhook(request)
 
     if request.method == 'POST':
-        
+        load_data()
         payload = request.json
         event = payload['entry'][0]['messaging']
-        #print(event)
         for current_event in event:
-            #load_data()
             print(current_event)
-
             if is_command(current_event):
                 sender_id = current_event['sender']['id']
                 send_action(sender_id, "typing_on")
@@ -340,7 +415,7 @@ def listen():
                 if sender_id in user_data and user_data[sender_id]["state"] == "connected":
                     send_action(user_data[sender_id]["partner"], "mark_seen")
 
-            #save_data()
+        save_data()
 
             #print(user_data)
 
