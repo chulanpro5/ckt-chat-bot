@@ -304,6 +304,8 @@ def get_message(event):
     elif "attachments" in event["message"]:
         message_type = event["message"]['attachments'][0]["type"]
         message_data = event["message"]['attachments'][0]["payload"]["url"]
+        if message_type == "fallback":
+            message_type = "text"
 
     return message_type, message_data
 
