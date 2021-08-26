@@ -9,8 +9,9 @@ from flask import jsonify
 import pytz 
 import pymongo
 import certifi
+import os
 
-connection_url = 'mongodb+srv://chulanpro5:fEZ8kJ5jAO7kGULN@test.tz6cj.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
+connection_url = str(os.environ.get('CONNECTION_URL','none'))
 app = Flask(__name__)
 client = pymongo.MongoClient(connection_url, tlsCAFile=certifi.where())
 
@@ -21,9 +22,8 @@ mongo_data = Database.User_data
 
 
 FB_API_URL = 'https://graph.facebook.com/v2.6/me/messages'
-VERIFY_TOKEN = '123456'  # <paste your verify token here>
-PAGE_ACCESS_TOKEN = 'EAAFZAXBWQCHQBABNCfjfZBNbOf0RgzZCb9NlRjdZA6dSmwZCe0mZCBB1rtpSqVtZCfribnd2AWjRBZBNEGVIwdt57mjpSpzYwByv2n5U4E9mTLgSEcZAIFMGuIgPRIZCxpjdYHp00jZCTrjOZCSNK85t5LRdAJTslbpCT2Wf6s1unZBZBxp8SPqHqHyGLE'  # paste your page access token here>"
-
+VERIFY_TOKEN = str(os.environ.get('VERIFY_TOKEN','none'))
+PAGE_ACCESS_TOKEN = str(os.environ.get('PAGE_ACCESS_TOKEN','none'))
 
 reply = open('reply.json',  encoding="utf8")
 reply = json.load(reply)
