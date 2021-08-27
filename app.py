@@ -10,6 +10,7 @@ import pytz
 import pymongo
 import certifi
 import os
+import traceback
 
 connection_url = str(os.environ.get('CONNECTION_URL','none'))
 client = pymongo.MongoClient(connection_url, tlsCAFile=certifi.where())
@@ -347,6 +348,7 @@ def create_user(id):
 
 
 def load_data():
+    global past_time
     global user_data
     global waiting_room
     global count
@@ -387,6 +389,9 @@ load_data()
 
 app = Flask(__name__)
 
+timezone = pytz.timezone('Asia/Saigon')
+past_time = datetime.now(timezone)
+
 @app.route("/webhook", methods=['GET', 'POST'])
 def listen():
     global user_data
@@ -407,34 +412,49 @@ def listen():
         print(event)
         print('-----------------end--------------------')
 
-        sender_id = event[0]['sender']['id']
-        create_user(sender_id)
+        
 
-        for current_event in event:
-    
-            if is_command(current_event):
-                # sender_id = current_event['sender']['id']
-                # create_user(sender_id)
+        try:
+            for current_event in event:
+                sender_id = event[0]['sender']['id']
+                create_user(sender_id)
 
-                send_action(sender_id, "typing_on")
-                command = current_event["postback"]["payload"]
-                process_command(sender_id, command)
+                if is_command(current_event):
+                    # sender_id = current_event['sender']['id']
+                    # create_user(sender_id)
 
-            elif is_user_message(current_event):
-                # sender_id = current_event['sender']['id']
-                # create_user(sender_id)
+                    send_action(sender_id, "typing_on")
+                    command = current_event["postback"]["payload"]
+                    process_command(sender_id, command)
 
-                message_type, message_data = get_message(current_event)
-                send_to_partner(sender_id, message_data, message_type)
+                elif is_user_message(current_event):
+                    # sender_id = current_event['sender']['id']
+                    # create_user(sender_id)
 
-            if is_seen(current_event):
-                # sender_id = current_event['sender']['id']
-                # create_user(sender_id)
+                    message_type, message_data = get_message(current_event)
+                    send_to_partner(sender_id, message_data, message_type)
 
-                if sender_id in user_data and user_data[sender_id]["state"] == "connected":
-                    send_action(user_data[sender_id]["partner"], "mark_seen")
+                if is_seen(current_event):
+                    # sender_id = current_event['sender']['id']
+                    # create_user(sender_id)
 
-        save_data()
+                    if sender_id in user_data and user_data[sender_id]["state"] == "connected":
+                        send_action(user_data[sender_id]["partner"], "mark_seen")
+        except:
+            save_data()
+            print("!!!!!!!!!!!!!!!!Error!!!!!!!!!!!!!!!!!!!!")
+            traceback.print_exc()
+            return
+
+        current_time = datetime.now(timezone)
+
+        time_delta = (current_time - past_time)
+        total_seconds = time_delta.total_seconds()
+        minutes = total_seconds/60
+
+        if int(minutes) >= 5: 
+            save_data()
+            past_time = current_time
 
     return "ok"
 
@@ -446,3 +466,4 @@ def main():
 if __name__ == "__main__":
     #app.run(threaded=True, port=5000)
     app.run(threaded=False, processes=1, port = 5000)
+
