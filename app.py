@@ -150,7 +150,7 @@ def process_command(id, command):
 
     if command == "started":
         send_buttons(id, reply["started"], [buttons["rule"], buttons["timban"]])
-        create_user_started(id)
+        create_user(id)
     if command == "timban":
         timban(id)
     elif command == "ketthuc":
@@ -326,24 +326,6 @@ def send_to_partner(id, message_data, message_type):
 
 def is_seen(event):
     return (event.get('read'))
-
-
-def create_user_started(id):
-    global user_data
-    global waiting_room
-    global count
-    global data
-
-    profile_URL = "https://graph.facebook.com/%s?fields=name&access_token=%s" % (
-        id, PAGE_ACCESS_TOKEN)
-    response = requests.get(profile_URL)
-
-    #print(response.json())
-
-    user_data[id] = {}
-    user_data[id]["user_name"] = response.json()["name"]
-    user_data[id]["state"] = "empty"
-    user_data[id]["partner"] = "empty"
 
 def create_user(id):
     global user_data
