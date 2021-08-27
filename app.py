@@ -12,7 +12,6 @@ import certifi
 import os
 
 connection_url = str(os.environ.get('CONNECTION_URL','none'))
-app = Flask(__name__)
 client = pymongo.MongoClient(connection_url, tlsCAFile=certifi.where())
 
 # Database
@@ -399,6 +398,9 @@ def save_data():
     updateObject = {"Data": data} 
     mongo_data.update_one(queryObject, {'$set': updateObject})
 
+load_data()
+
+app = Flask(__name__)
 
 @app.route("/webhook", methods=['GET', 'POST'])
 def listen():
@@ -413,7 +415,7 @@ def listen():
         return verify_webhook(request)
 
     if request.method == 'POST':
-        load_data()
+        #load_data()
         payload = request.json
         event = payload['entry'][0]['messaging']
         for current_event in event:
@@ -430,6 +432,8 @@ def listen():
 
             elif is_user_message(current_event):
                 sender_id = current_event['sender']['id']
+                # if sender_id == '4655104914507901':
+                #     return "dmm"
                 create_user(sender_id)
 
                 message_type, message_data = get_message(current_event)
