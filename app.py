@@ -256,6 +256,9 @@ def report(id):
         send_report_infor(user_data[id]["user_name"],
                           user_data[partner_id]["user_name"], date_time, id)
 
+    else:
+        send_buttons(id, reply["send_to_partner-empty"], [buttons["timban"]])
+
 
 def send_report_infor(user_report, user_reported, report_data, id):
     global user_data
