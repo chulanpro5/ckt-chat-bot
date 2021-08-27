@@ -398,7 +398,7 @@ def listen():
     global waiting_room
     global count
     global data
-
+    global past_time
     """This is the main function flask uses to 
     listen at the `/webhook` endpoint"""
     if request.method == "GET":
@@ -452,7 +452,8 @@ def listen():
         total_seconds = time_delta.total_seconds()
         minutes = total_seconds/60
 
-        if int(minutes) >= 5: 
+        if int(minutes) >= 1:
+            print("----------------------------Save----------------------") 
             save_data()
             past_time = current_time
 
