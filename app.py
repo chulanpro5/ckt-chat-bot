@@ -452,7 +452,7 @@ def listen():
         total_seconds = time_delta.total_seconds()
         minutes = total_seconds/60
 
-        if int(minutes) >= 1:
+        if int(minutes) >= 5:
             print("----------------------------Save----------------------") 
             save_data()
             past_time = current_time
