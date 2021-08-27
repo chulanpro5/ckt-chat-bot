@@ -403,39 +403,38 @@ def listen():
         #load_data()
         payload = request.json
         event = payload['entry'][0]['messaging']
+        print('-----------------start--------------------')
+        print(event)
+        print('-----------------end--------------------')
+
+        sender_id = event[0]['sender']['id']
+        create_user(sender_id)
+
         for current_event in event:
-            print('-----------------start--------------------')
-            print(current_event)
-            print('-----------------end--------------------')
+    
             if is_command(current_event):
-                sender_id = current_event['sender']['id']
-                create_user(sender_id)
+                # sender_id = current_event['sender']['id']
+                # create_user(sender_id)
 
                 send_action(sender_id, "typing_on")
                 command = current_event["postback"]["payload"]
                 process_command(sender_id, command)
 
             elif is_user_message(current_event):
-                sender_id = current_event['sender']['id']
-                # if sender_id == '4655104914507901':
-                #     return "dmm"
-                create_user(sender_id)
+                # sender_id = current_event['sender']['id']
+                # create_user(sender_id)
 
                 message_type, message_data = get_message(current_event)
                 send_to_partner(sender_id, message_data, message_type)
 
             if is_seen(current_event):
-                sender_id = current_event['sender']['id']
-                create_user(sender_id)
+                # sender_id = current_event['sender']['id']
+                # create_user(sender_id)
 
                 if sender_id in user_data and user_data[sender_id]["state"] == "connected":
                     send_action(user_data[sender_id]["partner"], "mark_seen")
 
         save_data()
-
-            #print(user_data)
-
-        #return jsonify(result={"status": 200})
 
     return "ok"
 
