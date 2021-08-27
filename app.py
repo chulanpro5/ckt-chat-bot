@@ -150,7 +150,7 @@ def process_command(id, command):
 
     if command == "started":
         send_buttons(id, reply["started"], [buttons["rule"], buttons["timban"]])
-        create_user(id)
+        #create_user(id)
     if command == "timban":
         timban(id)
     elif command == "ketthuc":
