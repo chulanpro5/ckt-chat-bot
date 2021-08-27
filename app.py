@@ -388,6 +388,7 @@ def save_data():
 load_data()
 
 app = Flask(__name__)
+app.config["DEBUG"] = True
 
 timezone = pytz.timezone('Asia/Saigon')
 past_time = datetime.now(timezone)
@@ -461,10 +462,9 @@ def listen():
 
 @app.route("/", methods=['GET'])
 def main():
-    return data
+    return jsonify(data)
 
 
 if __name__ == "__main__":
     #app.run(threaded=True, port=5000)
     app.run(threaded=False, processes=1, port = 5000)
-
