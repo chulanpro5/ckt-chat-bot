@@ -318,6 +318,8 @@ def get_message_attachment(event):
                 message_type = "text"
             else:
                 return "empty", "empty"
+        elif message_type == "video":
+            message_type = "text"
 
     return message_type, message_data
 
