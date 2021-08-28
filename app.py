@@ -299,16 +299,25 @@ def is_user_message(event):
     return 0
 
 
-def get_message(event):
+def get_message_text(event):
+    message_type = "empty"
+    message_data = "empty"
     if "text" in event["message"]:
         message_type = "text"
         message_data = event["message"]["text"]
+    return message_type, message_data
 
-    elif "attachments" in event["message"]:
+def get_message_attachment(event):
+    message_type = "empty"
+    message_data = "empty"
+    if "attachments" in event["message"]:
         message_type = event["message"]['attachments'][0]["type"]
         message_data = event["message"]['attachments'][0]["payload"]["url"]
         if message_type == "fallback":
-            message_type = "text"
+            if not "text" in event["message"]:
+                message_type = "text"
+            else:
+                return "empty", "empty"
 
     return message_type, message_data
 
@@ -321,7 +330,7 @@ def send_to_partner(id, message_data, message_type):
             send_attachment(user_data[id]["partner"],
                             message_data, message_type)
     elif user_data[id]["state"] == "waiting":
-        send_text(id, reply["send_to_partner-waiting"])
+        send_text(id, reply["timban-waiting"])
     else: send_buttons(id, reply["send_to_partner-empty"], [buttons["timban"]])
 
 
@@ -432,8 +441,13 @@ def listen():
                     # sender_id = current_event['sender']['id']
                     # create_user(sender_id)
 
-                    message_type, message_data = get_message(current_event)
-                    send_to_partner(sender_id, message_data, message_type)
+                    message_type, message_data = get_message_text(current_event)
+                    if message_type != "empty":
+                        send_to_partner(sender_id, message_data, message_type)
+
+                    message_type, message_data = get_message_attachment(current_event)
+                    if message_type != "empty":
+                        send_to_partner(sender_id, message_data, message_type)
 
                 if is_seen(current_event):
                     # sender_id = current_event['sender']['id']
