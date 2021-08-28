@@ -1,0 +1,7 @@
+heroku git:remote app-name
+
+heroku config:get TZ
+heroku config:add TZ="Asia/Ho_Chi_Minh"
+
+heroku labs:enable log-runtime-metrics
+heroku restart
