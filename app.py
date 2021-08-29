@@ -461,7 +461,7 @@ def listen():
             save_data()
             print("!!!!!!!!!!!!!!!!Error!!!!!!!!!!!!!!!!!!!!")
             traceback.print_exc()
-            return
+            return "error"
 
         current_time = datetime.now(timezone)
 
