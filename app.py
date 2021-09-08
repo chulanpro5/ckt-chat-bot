@@ -547,7 +547,7 @@ def listen():
             print('-----------------start--------------------')
             print(event)
             print('-----------------end--------------------')
-            send_error(event)
+            send_error(str(event))
             traceback.print_exc()
             return "error"
 
