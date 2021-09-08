@@ -4,7 +4,7 @@ from flask_cors import CORS
 import json
 from datetime import date, datetime
 from googleapiclient.discovery import build
-from google.oauth2 import service_acreport_count
+from google.oauth2 import service_account
 from flask import jsonify
 import pytz 
 import pymongo
@@ -39,10 +39,10 @@ error_count = {}
 
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-SERVICE_ACreport_count_FILE = 'key.json'
+service_account_FILE = 'key.json'
 credentials = None
-credentials = service_acreport_count.Credentials.from_service_acreport_count_file(
-    SERVICE_ACreport_count_FILE, scopes=SCOPES)
+credentials = service_account.Credentials.from_service_account_file(
+    service_account_FILE, scopes=SCOPES)
 SAMPLE_SPREADSHEET_ID = '1461y4vKxSoPwaDV6wUuLAqObNXwEWZ3Hmq27pKywbt0'
 service = build('sheets', 'v4', credentials=credentials)
 sheet = service.spreadsheets()
