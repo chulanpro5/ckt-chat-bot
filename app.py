@@ -200,6 +200,7 @@ def find_partner(id):
     elif waiting_room["state"] == "waiting":
         send_text(id, reply["timban-empty"])
         connect(id, waiting_room["id"])
+        send_connections(id, waiting_room["id"])
 
 
 def connect(id1, id2):
