@@ -80,7 +80,7 @@ def send_text(recipient_id, text):
         'notification_type': 'regular'
     }
 
-    send_message(payload)
+    return send_message(payload)
 
 def send_buttons(recipient_id, text, buttons):
     payload = {
@@ -110,7 +110,7 @@ def send_action(recipient_id, action):
         "sender_action": action
     }
 
-    send_message(payload)
+    return send_message(payload)
 
 
 def send_attachment(recipient_id, attachment_url, type):
@@ -129,7 +129,7 @@ def send_attachment(recipient_id, attachment_url, type):
         'notification_type': 'regular'
     }
 
-    send_message(payload)
+    return send_message(payload)
 
 
 def is_command(event):
@@ -401,10 +401,15 @@ def get_message_attachment(event):
 def send_to_partner(id, message_data, message_type):
     if user_data[id]["state"] == "connected":
         if message_type == "text":
-            send_text(user_data[id]["partner"], message_data)
+            message_respone = send_text(user_data[id]["partner"], message_data)
         else:
-            send_attachment(user_data[id]["partner"],
-                            message_data, message_type)
+            message_respone = send_attachment(user_data[id]["partner"], message_data, message_type)
+
+        check_respone = message_respone.get("error", "success")
+        if check_respone != "success":
+            send_text(id, reply["send_message_timeout"])
+            send_error(str(check_respone))
+            
     elif user_data[id]["state"] == "waiting":
         send_text(id, reply["timban-waiting"])
     else: send_buttons(id, reply["send_to_partner-empty"], [buttons["timban"]])
