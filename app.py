@@ -199,7 +199,7 @@ def find_partner(id):
         user_data[id]["state"] = "waiting"
     elif waiting_room["state"] == "waiting":
         send_text(id, reply["timban-empty"])
-        send_connections(id, waiting_room["id"])
+        send_connection(id, waiting_room["id"])
         connect(id, waiting_room["id"])
 
 def connect(id1, id2):
@@ -305,7 +305,7 @@ def send_report_infor(user_report, user_reported, report_data, id):
                                     range=pos, valueInputOption="USER_ENTERED",
                                     body={"values": infor}).execute()
 
-def send_connections(id1, id2):
+def send_connection(id1, id2):
     global user_data
     global waiting_room
     global report_count
@@ -329,6 +329,33 @@ def send_connections(id1, id2):
 
     pos = "connection_history!A" + str(connection_count)
     infor = [[user_1, user_2, date_time]]
+
+
+    request = sheet.values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID,
+                                    range=pos, valueInputOption="USER_ENTERED",
+                                    body={"values": infor}).execute()
+
+def send_error(error_event):
+    global user_data
+    global waiting_room
+    global report_count
+    global connection_count
+    global error_count
+    global data
+
+    if error_count == 1:
+        infor = [["ERROR", "Thời gian"]]
+        request = sheet.values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID,
+                                        range="error!A1", valueInputOption="USER_ENTERED",
+                                        body={"values": infor}).execute()
+    error_count = error_count + 1
+
+    timezone = pytz.timezone('Asia/Saigon')
+    now = datetime.now(timezone)
+    date_time = now.strftime("%d/%m/%Y %H:%M")
+
+    pos = "error!A" + str(error_count)
+    infor = [[error_event, date_time]]
 
 
     request = sheet.values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID,
@@ -520,6 +547,7 @@ def listen():
             print('-----------------start--------------------')
             print(event)
             print('-----------------end--------------------')
+            send_error(event)
             traceback.print_exc()
             return "error"
 
