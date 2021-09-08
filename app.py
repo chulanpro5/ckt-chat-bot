@@ -4,7 +4,7 @@ from flask_cors import CORS
 import json
 from datetime import date, datetime
 from googleapiclient.discovery import build
-from google.oauth2 import service_account
+from google.oauth2 import service_acreport_count
 from flask import jsonify
 import pytz 
 import pymongo
@@ -33,14 +33,16 @@ buttons = json.load(buttons)
 data = {}
 user_data = {}
 waiting_room = {}
-count = {}
+report_count = {}
+connection_count = {}
+error_count = {}
 
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-SERVICE_ACCOUNT_FILE = 'key.json'
+SERVICE_ACreport_count_FILE = 'key.json'
 credentials = None
-credentials = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+credentials = service_acreport_count.Credentials.from_service_acreport_count_file(
+    SERVICE_ACreport_count_FILE, scopes=SCOPES)
 SAMPLE_SPREADSHEET_ID = '1461y4vKxSoPwaDV6wUuLAqObNXwEWZ3Hmq27pKywbt0'
 service = build('sheets', 'v4', credentials=credentials)
 sheet = service.spreadsheets()
@@ -133,7 +135,9 @@ def send_attachment(recipient_id, attachment_url, type):
 def is_command(event):
     global user_data
     global waiting_room
-    global count
+    global report_count
+    global connection_count
+    global error_count
     global data
 
     if "postback" in event:
@@ -146,7 +150,9 @@ def is_command(event):
 def process_command(id, command):
     global user_data
     global waiting_room
-    global count
+    global report_count
+    global connection_count
+    global error_count
     global data
 
     if command == "started":
@@ -165,7 +171,9 @@ def process_command(id, command):
 def timban(id):
     global user_data
     global waiting_room
-    global count
+    global report_count
+    global connection_count
+    global error_count
     global data
 
     if user_data[id]["state"] == "connected":
@@ -179,7 +187,9 @@ def timban(id):
 def find_partner(id):
     global user_data
     global waiting_room
-    global count
+    global report_count
+    global connection_count
+    global error_count
     global data
 
     if waiting_room["state"] == "empty":
@@ -195,7 +205,9 @@ def find_partner(id):
 def connect(id1, id2):
     global user_data
     global waiting_room
-    global count
+    global report_count
+    global connection_count
+    global error_count
     global data
 
     user_data[id1]["state"] = "connected"
@@ -213,7 +225,9 @@ def connect(id1, id2):
 def ketthuc(id):
     global user_data
     global waiting_room
-    global count
+    global report_count
+    global connection_count
+    global error_count
     global data
 
     if user_data[id]["state"] == "connected":
@@ -230,7 +244,9 @@ def ketthuc(id):
 def disconnect(id):
     global user_data
     global waiting_room
-    global count
+    global report_count
+    global connection_count
+    global error_count
     global data
 
     partner_id = user_data[id]["partner"]
@@ -248,7 +264,9 @@ def disconnect(id):
 def report(id):
     global user_data
     global waiting_room
-    global count
+    global report_count
+    global connection_count
+    global error_count
     global data
 
     if user_data[id]["state"] == "connected":
@@ -266,25 +284,52 @@ def report(id):
 def send_report_infor(user_report, user_reported, report_data, id):
     global user_data
     global waiting_room
-    global count
+    global report_count
+    global connection_count
+    global error_count
     global data
 
-    if count == 1:
+    if report_count == 1:
         infor = [["Người báo cáo", "Người bị báo cáo", "Thời gian"]]
         request = sheet.values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID,
-                                        range="test!A1", valueInputOption="USER_ENTERED",
+                                        range="report!A1", valueInputOption="USER_ENTERED",
                                         body={"values": infor}).execute()
-    count = count + 1
+    report_count = report_count + 1
 
-    pos = "test!A" + str(count)
+    pos = "report!A" + str(report_count)
     infor = [[user_report, user_reported, report_data]]
 
-    # print("----------------------------")
-    # print(infor)
-    # print(count)
-    # print(pos)
-    # print("----------------------------")
     send_buttons(id, reply["report-connected"], [buttons["ketthuc"]])
+
+    request = sheet.values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID,
+                                    range=pos, valueInputOption="USER_ENTERED",
+                                    body={"values": infor}).execute()
+
+def send_connections(id1, id2):
+    global user_data
+    global waiting_room
+    global report_count
+    global connection_count
+    global error_count
+    global data
+
+    if connection_count == 1:
+        infor = [["User 1", "User 2", "Thời gian"]]
+        request = sheet.values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID,
+                                        range="connection_history!A1", valueInputOption="USER_ENTERED",
+                                        body={"values": infor}).execute()
+    connection_count = connection_count + 1
+
+    timezone = pytz.timezone('Asia/Saigon')
+    now = datetime.now(timezone)
+    date_time = now.strftime("%d/%m/%Y %H:%M")
+
+    user_1 = user_data[id1]["user_name"]
+    user_2 = user_data[id2]["user_name"]
+
+    pos = "connection_history!A" + str(connection_count)
+    infor = [[user_1, user_2, date_time]]
+
 
     request = sheet.values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID,
                                     range=pos, valueInputOption="USER_ENTERED",
@@ -344,7 +389,9 @@ def is_seen(event):
 def create_user(id):
     global user_data
     global waiting_room
-    global count
+    global report_count
+    global connection_count
+    global error_count
     global data
 
     if id not in user_data:
@@ -364,7 +411,9 @@ def load_data():
     global past_time
     global user_data
     global waiting_room
-    global count
+    global report_count
+    global connection_count
+    global error_count
     global data
 
     queryObject = {"Type": 'data'}
@@ -377,18 +426,22 @@ def load_data():
 
     user_data = data['user_data']
     waiting_room = data["waiting_room"]
-    count = data["count"]
+    report_count = data["report_count"]
+    connection_count = data["connection_count"]
+    error_count = data["error_count"]
 
 
 def save_data():
     global user_data
     global waiting_room
-    global count
+    global report_count
+    global connection_count
+    global error_count
     global data
 
     data["waiting_room"] = waiting_room
     data["user_data"] = user_data
-    data["count"] = count
+    data["report_count"] = report_count
 
     # print('------------------save-----------------')
     # print(data)
@@ -410,7 +463,9 @@ past_time = datetime.now(timezone)
 def listen():
     global user_data
     global waiting_room
-    global count
+    global report_count
+    global connection_count
+    global error_count
     global data
     global past_time
     """This is the main function flask uses to 
