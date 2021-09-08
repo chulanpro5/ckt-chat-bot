@@ -406,10 +406,11 @@ def send_to_partner(id, message_data, message_type):
             message_respone = send_attachment(user_data[id]["partner"], message_data, message_type)
 
         check_respone = message_respone.get("error", "success")
+        print(check_respone)
         if check_respone != "success":
             send_text(id, reply["send_message_timeout"])
             send_error(str(check_respone))
-            
+
     elif user_data[id]["state"] == "waiting":
         send_text(id, reply["timban-waiting"])
     else: send_buttons(id, reply["send_to_partner-empty"], [buttons["timban"]])
