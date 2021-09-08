@@ -475,6 +475,8 @@ def save_data():
     data["waiting_room"] = waiting_room
     data["user_data"] = user_data
     data["report_count"] = report_count
+    data["connection_count"] = connection_count
+    data["error_count"] = error_count
 
     # print('------------------save-----------------')
     # print(data)
