@@ -6,8 +6,13 @@
     },
     "ketthuc": {
         "type": "postback",
-        "title": "Kết thúc",
+        "title": "Dừng chân",
         "payload": "ketthuc"
+    },
+    "confirm_ketthuc": {
+        "type": "postback",
+        "title": "Có",
+        "payload": "confirm_ketthuc"
     },
     "report": {
         "type": "postback",

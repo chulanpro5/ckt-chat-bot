@@ -155,6 +155,8 @@ def process_command(id, command):
     if command == "timban":
         timban(id)
     elif command == "ketthuc":
+        send_buttons(id, reply["confirm_ketthuc"], [buttons["confirm_ketthuc"]])
+    elif command == "confirm_ketthuc":
         ketthuc(id)
     elif command == "report":
         report(id)
@@ -420,9 +422,9 @@ def listen():
         #load_data()
         payload = request.json
         event = payload['entry'][0]['messaging']
-        print('-----------------start--------------------')
-        print(event)
-        print('-----------------end--------------------')
+        #print('-----------------start--------------------')
+        #print(event)
+        #print('-----------------end--------------------')
 
         
 
@@ -460,6 +462,9 @@ def listen():
         except:
             save_data()
             print("!!!!!!!!!!!!!!!!Error!!!!!!!!!!!!!!!!!!!!")
+            print('-----------------start--------------------')
+            print(event)
+            print('-----------------end--------------------')
             traceback.print_exc()
             return "error"
 

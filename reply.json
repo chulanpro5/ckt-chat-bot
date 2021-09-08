@@ -8,6 +8,7 @@
     "ketthuc-connected": "[CKTS] Chuyến tàu đã cập bến! Cậu có muốn một chuyến đi mới không",
     "ketthuc-waiting": "[CKTS] Kết thúc tìm kiếm chuyến tàu!",
     "ketthuc-empty": "[CKTS] Bạn chưa trên chuyến tàu nào! Hãy bấm 'Khởi hành' nhé!",
+    "confirm_ketthuc": "[CKTS] Bạn có chắc chắn muốn kết thúc không? Nếu không, hãy tiếp tục cuộc trò chuyện nhé 😁",
 
     "report-connected": "[CKTS] Có vẻ cậu đã không hài lòng về chuyến tàu này. Chúng tớ sẽ tiến hành kiểm tra ngay! Bạn có muốn 'Dừng chân' không ?",
 
