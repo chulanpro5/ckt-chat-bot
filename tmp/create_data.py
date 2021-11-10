@@ -17,7 +17,9 @@ sample_data = {
         "id": ""
     },
     "user_data": {},
-    "count": 1
+    "report_count": 0,
+    "connection_count": 0,
+    "error_count": 0,
 }
 
 
