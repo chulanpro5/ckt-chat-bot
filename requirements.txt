@@ -11,7 +11,7 @@ distlib==0.3.2
 dnspython==2.1.0
 filelock==3.0.12
 Flask==2.0.1
-Flask-Cors==3.0.10
+Flask-Cors==4.0.1
 google-api-core==2.0.0
 google-api-python-client==2.17.0
 google-auth==2.0.1
